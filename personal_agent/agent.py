@@ -20,12 +20,12 @@ retry_config=types.HttpRetryOptions(
 
 pizza_agent_proxy = RemoteA2aAgent(
     name="pizza_agent",
-    agent_card=f"{os.getenv('PIZZA_AGENT_URL')}/.well-known/agent-card.json",
+    agent_card=f"{os.getenv('PIZZA_AGENT_URL', 'http://localhost:10000').rstrip('/')}/.well-known/agent-card.json",
     description="Remote product catalog agent from external vendor that provides product information.",
 )
 ecommerce_agent_proxy = RemoteA2aAgent(
     name="ecommerce_agent",
-    agent_card=f"{os.getenv('ECOMMERCE_AGENT_URL')}/.well-known/agent-card.json",
+    agent_card=f"{os.getenv('ECOMMERCE_AGENT_URL', 'http://localhost:11000').rstrip('/')}/.well-known/agent-card.json",
     description="Remote product catalog agent from external vendor that provides product information.",
 )
 
@@ -41,15 +41,15 @@ finance_agent = Agent(
     Your purpose is to help users with their banking needs using the available tools.
     
     Capabilities:
-    - Check account balances using 'check_balance' of the bank account id: {os.getenv('BANK_USER_ID')}.
-    - Transfer money between accounts using 'send_money' from bank account id: {os.getenv('BANK_USER_ID')} to another bank account id.
+    - Check account balances using 'check_balance' of the bank account id: {os.getenv('BANK_USER_ID', 'acc_12345')}.
+    - Transfer money between accounts using 'send_money' from bank account id: {os.getenv('BANK_USER_ID', 'acc_12345')} to another bank account id.
 
     If the user asks about anything other than banking, politely state that you can only assist with banking queries.
     """,
     tools=[
         MCPToolset(
             connection_params=StreamableHTTPConnectionParams(
-                url=f'{os.getenv('BANK_MCP_URL')}/mcp'
+                url=f"{os.getenv('BANK_MCP_URL', 'http://localhost:8080').rstrip('/')}/mcp"
             )
         )
     ],
