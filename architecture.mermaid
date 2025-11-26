@@ -1,0 +1,20 @@
+graph TD
+    User[User] -->|Interacts with| RootAgent[Personal AI Agent (Root)]
+    
+    subgraph "Personal Agent Runtime"
+        RootAgent -->|Stores/Retrieves| SessionService[Session Service]
+        RootAgent -->|Stores/Retrieves| MemoryService[Memory Service]
+        
+        RootAgent -->|Delegates to| FinanceAgent[Finance Agent]
+        RootAgent -->|Delegates to| PurchaserAgent[Purchaser Agent]
+    end
+    
+    subgraph "External Services"
+        FinanceAgent -->|MCP Protocol| BankMCP[Bank MCP Server]
+        PurchaserAgent -->|A2A Protocol| PizzaAgent[Pizza Shop Agent]
+        PurchaserAgent -->|A2A Protocol| EcommerceAgent[E-Commerce Agent]
+    end
+
+    style RootAgent fill:#f9f,stroke:#333,stroke-width:2px
+    style MemoryService fill:#ff9,stroke:#333,stroke-width:2px
+    style SessionService fill:#ff9,stroke:#333,stroke-width:2px

@@ -8,6 +8,29 @@ The following diagram illustrates the high-level workflow and interaction betwee
 
 ![Agent Architecture Diagram](agent_architecture.png)
 
+```mermaid
+graph TD
+    User[User] -->|Interacts with| RootAgent[Personal AI Agent (Root)]
+    
+    subgraph "Personal Agent Runtime"
+        RootAgent -->|Stores/Retrieves| SessionService[Session Service]
+        RootAgent -->|Stores/Retrieves| MemoryService[Memory Service]
+        
+        RootAgent -->|Delegates to| FinanceAgent[Finance Agent]
+        RootAgent -->|Delegates to| PurchaserAgent[Purchaser Agent]
+    end
+    
+    subgraph "External Services"
+        FinanceAgent -->|MCP Protocol| BankMCP[Bank MCP Server]
+        PurchaserAgent -->|A2A Protocol| PizzaAgent[Pizza Shop Agent]
+        PurchaserAgent -->|A2A Protocol| EcommerceAgent[E-Commerce Agent]
+    end
+
+    style RootAgent fill:#f9f,stroke:#333,stroke-width:2px
+    style MemoryService fill:#ff9,stroke:#333,stroke-width:2px
+    style SessionService fill:#ff9,stroke:#333,stroke-width:2px
+```
+
 ## Workflow Description
 
 The system is composed of a central orchestrator and specialized sub-agents, each handling specific domains of responsibility.
@@ -18,6 +41,7 @@ The system is composed of a central orchestrator and specialized sub-agents, eac
 
 ### 2. Personal AI Agent (Orchestrator)
 - **Role**: Acts as the central brain of the system. It parses user intent and delegates tasks to the appropriate specialized agents.
+- **Memory**: Equipped with **Memory Service** to store and recall user preferences and past interactions across sessions.
 - **Routing**: Depending on the request (e.g., "Check my balance" or "Order a pizza"), it routes instructions to either the Finance Agent or the Purchaser Agent.
 
 ### 3. Finance Agent (Agent as a Tool)
