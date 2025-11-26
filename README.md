@@ -57,6 +57,17 @@ The system is composed of a central orchestrator and specialized sub-agents, eac
   - **Pizza Order Agent**: For food delivery requests (e.g., `PLACE_ORDER`).
   - **E-Commerce Agent**: For general shopping and product searches (e.g., `SEARCH_ITEMS`).
 
+## Memory & Persistence
+
+The Personal AI Agent is enhanced with memory capabilities to provide a more personalized experience.
+
+-   **Memory Service**: Utilizes `InMemoryMemoryService` to store user preferences and important information across different conversation sessions.
+-   **Session Service**: Uses `InMemorySessionService` to manage active conversation contexts.
+-   **Automatic Saving**: An `after_agent_callback` (`auto_save_to_memory`) is implemented to automatically persist the session state to memory after every agent turn.
+-   **Retrieval**: The agent is equipped with the `load_memory` tool, allowing it to proactively search for and recall past interactions when needed (e.g., remembering a user's favorite color or past orders).
+
+*Note: The current implementation uses in-memory storage, which is volatile and resets when the application restarts.*
+
 ## Key Technologies
 - **Google Cloud**: Hosts the primary agent infrastructure.
 - **Agent Development Kit (ADK)**: Framework for building the agents.

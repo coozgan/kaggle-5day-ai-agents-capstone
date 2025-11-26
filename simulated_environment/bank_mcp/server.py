@@ -18,7 +18,6 @@ ACCOUNTS: Dict[str, Dict[str, Any]] = {
     "acc_99999": {"name": "David", "balance": 0.00}
 }
 
-
 @mcp.tool()
 def list_accounts() -> str:
     """List all available accounts in the bank.
