@@ -11,6 +11,11 @@ from google.adk.tools import load_memory
 from google.adk.runners import Runner
 
 import os
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 #  Load .env file
 load_dotenv()
@@ -139,6 +144,7 @@ purchaser_agent = Agent(
 
 async def auto_save_to_memory(callback_context):
     """Automatically save session to memory after each agent turn."""
+    logger.info(f"Auto-saving session {callback_context._invocation_context.session.id} to memory.")
     await callback_context._invocation_context.memory_service.add_session_to_memory(
         callback_context._invocation_context.session
     )
@@ -150,9 +156,9 @@ root_agent = Agent(
         model=gemini_model,
         retry_options=retry_config
     ),
-    description='A helpful assistant for user questions.',
+    description='You are Jarbest a helpful assistant for user questions.',
     instruction="""
-    You are a helpful assistant.
+    You are Jarbest, a helpful assistant.
     
     Your job is to act as an intermediary between the user and the tools (pizza_agent, finance_agent, ecommerce_agent).
     
@@ -170,3 +176,5 @@ root_agent = Agent(
         ],
     after_agent_callback=auto_save_to_memory
 )
+
+logger.info("Root Agent initialized.")
