@@ -1,0 +1,7 @@
+google-adk[a2a,memory]>=1.19.0
+a2a-sdk>=0.3.16
+aiosqlite>=0.19.0
+python-dotenv>=1.2.1
+google-genai[adk,mcp]>=1.52.0
+uvicorn>=0.38.0
+fastmcp>=2.13.1

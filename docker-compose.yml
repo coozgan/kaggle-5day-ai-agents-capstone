@@ -1,0 +1,75 @@
+services:
+  bank-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: python simulated_environment/bank_mcp/server.py
+    ports:
+      - "8888:8888"
+    environment:
+      - PORT=8888
+    networks:
+      - jarbest-network
+
+  pizza-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: python -m uvicorn simulated_environment.pizza_shop_agent.pizza_shop.agent:a2a_app --host 0.0.0.0 --port 8080
+    ports:
+      - "10000:8080"
+    environment:
+      - PORT=8080
+      - MODEL=gemini-2.5-flash
+      - A2A_HOST=pizza-agent
+      # UPDATED: Use internal port 8080 for inter-container communication
+      - A2A_PORT=8080
+      - A2A_PROTOCOL=http
+    networks:
+      - jarbest-network
+
+  ecommerce-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: python -m uvicorn simulated_environment.ecommerce_agent.ecommerce_agent.agent:a2a_app --host 0.0.0.0 --port 8080
+    ports:
+      - "11000:8080"
+    environment:
+      - PORT=8080
+      - MODEL=gemini-2.5-flash
+      - A2A_HOST=ecommerce-agent
+      # UPDATED: Use internal port 8080 for inter-container communication
+      - A2A_PORT=8080
+      - A2A_PROTOCOL=http
+    networks:
+      - jarbest-network
+
+  personal-agent-ui:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    working_dir: /app
+    # Run the ADK Web UI
+    command: adk web --host 0.0.0.0 --verbose --port 8080
+    ports:
+      - "8080:8080"
+    environment:
+      - PYTHONPATH=/app
+      - MODEL=gemini-2.5-flash
+      - BANK_MCP_URL=http://bank-mcp:8888
+      - PIZZA_AGENT_URL=http://pizza-agent:8080
+      - ECOMMERCE_AGENT_URL=http://ecommerce-agent:8080
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/credentials.json
+    volumes:
+      - ${HOME}/.config/gcloud/application_default_credentials.json:/app/credentials.json:ro
+    networks:
+      - jarbest-network
+    depends_on:
+      - bank-mcp
+      - pizza-agent
+      - ecommerce-agent
+
+networks:
+  jarbest-network:
+    driver: bridge

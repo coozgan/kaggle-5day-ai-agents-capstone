@@ -11,11 +11,6 @@ gemini_model = os.getenv('MODEL')
 
 logger = logging.getLogger(__name__)
 
-
-
-
-
-
 # Configure Retry Options
 retry_config=types.HttpRetryOptions(
     attempts=5,  # Maximum retry attempts
@@ -92,7 +87,6 @@ def place_order(item_name: str, quantity: int) -> dict:
         "estimated_delivery": "45 mins"
     }
 
-
 ecommerce_agent = Agent(
     model=Gemini(
         model=gemini_model,
@@ -111,4 +105,14 @@ ecommerce_agent = Agent(
         tools=[search_items, place_order]
 )
 # Make the agent A2A-compatible
-a2a_app = to_a2a(ecommerce_agent, port=11000)
+# Make the agent A2A-compatible
+port = int(os.getenv('PORT', 8080))
+host = os.getenv('A2A_HOST', 'localhost')
+# Allow explicit port override for A2A card (useful for port mapping/forwarding)
+a2a_port = int(os.getenv('A2A_PORT', port))
+protocol = os.getenv('A2A_PROTOCOL', 'http')
+a2a_app = to_a2a(ecommerce_agent, host=host, port=a2a_port, protocol=protocol)
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(a2a_app, host="0.0.0.0", port=port)

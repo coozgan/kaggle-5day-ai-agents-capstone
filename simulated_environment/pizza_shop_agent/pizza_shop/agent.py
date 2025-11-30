@@ -28,16 +28,19 @@ class Order(BaseModel):
     status: str
     order_items: list[OrderItem]
 
-# pizza menu
+# Pizza Menu Data
+PIZZA_MENU = {
+    "Margherita Pizza": 10.00,
+    "Pepperoni Pizza": 14.00,
+    "Hawaiian Pizza": 11.00,
+    "Veggie Pizza": 10.00,
+    "BBQ Chicken Pizza": 13.00
+}
+
 def get_pizza_menu() -> str:
     """Get the pizza menu."""
-    return """
-    {
-    "pepperoni": 15.00,
-    "cheese": 12.00,
-    "veggie": 14.00
-    }
-    """
+    return str(PIZZA_MENU)
+
 def create_pizza_order(order_items: list[OrderItem]) -> str:
     """
     Creates a new pizza order with the given order items.
@@ -64,7 +67,7 @@ root_agent = Agent(
     model=gemini_model,
     name='pizza_agent',
     description="External vendor's pizza shop agent that provides product information and availability and allows you to create order for pizza.",
-    instruction="""
+    instruction=f"""
     # INSTRUCTIONS
     You are a specialized assistant for a pizza shop.
     Your sole purpose is to answer questions about what is available on pizza menu and price also handle order creation.
@@ -74,11 +77,7 @@ root_agent = Agent(
     # CONTEXT
 
     Provided below is the available pizza menu and it's related price:
-    - Margherita Pizza: $10
-    - Pepperoni Pizza: $14
-    - Hawaiian Pizza: $11
-    - Veggie Pizza: $10
-    - BBQ Chicken Pizza: $13
+    {PIZZA_MENU}
 
     # RULES
 
@@ -95,4 +94,14 @@ root_agent = Agent(
 )
 
 # Make the agent A2A-compatible
-a2a_app = to_a2a(root_agent, port=10000)
+# Make the agent A2A-compatible
+port = int(os.getenv('PORT', 8080))
+host = os.getenv('A2A_HOST', 'localhost')
+# Allow explicit port override for A2A card (useful for port mapping/forwarding)
+a2a_port = int(os.getenv('A2A_PORT', port))
+protocol = os.getenv('A2A_PROTOCOL', 'http')
+a2a_app = to_a2a(root_agent, host=host, port=a2a_port, protocol=protocol)
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(a2a_app, host="0.0.0.0", port=port)

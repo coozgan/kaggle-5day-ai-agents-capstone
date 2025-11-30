@@ -72,12 +72,13 @@ def send_money(
     return f"Transaction successful: {amount:.2f} sent from {sender_id} to {receiver_id}"
 
 if __name__ == "__main__":
-    logger.info(f"🚀 MCP server started on port {os.getenv('PORT', 8080)}")
+    port = int(os.getenv('PORT', 8888))
+    logger.info(f"🚀 MCP server started on port {port}")
     # Could also use 'sse' transport, host="0.0.0.0" required for Cloud Run.
     asyncio.run(
         mcp.run_async(
             transport="http",
-            host="127.0.0.1",
-            port=os.getenv("PORT", 8080),
+            host="0.0.0.0",
+            port=port,
         )
     )

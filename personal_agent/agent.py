@@ -3,12 +3,12 @@ from google.adk.models.google_llm import Gemini
 from google.adk.tools.mcp_tool import MCPToolset, StreamableHTTPConnectionParams
 from google.adk.tools.agent_tool import AgentTool
 from google.adk.agents.remote_a2a_agent import RemoteA2aAgent
-from google.genai import types
-from dotenv import load_dotenv
 from google.adk.sessions import InMemorySessionService
 from google.adk.memory import InMemoryMemoryService
 from google.adk.tools import load_memory
 from google.adk.runners import Runner
+from google.genai import types
+from dotenv import load_dotenv
 
 import os
 import logging
@@ -80,15 +80,22 @@ USER_ID = "mem_user"
 pizza_agent_proxy = RemoteA2aAgent(
     name="pizza_agent",
     agent_card=f"{os.getenv('PIZZA_AGENT_URL', 'http://localhost:10000').rstrip('/')}/.well-known/agent-card.json",
-    description="Remote product catalog agent from external vendor that provides product information.",
+    description="Remote pizza agent from external vendor that provides pizza information.",
 )
 ecommerce_agent_proxy = RemoteA2aAgent(
     name="ecommerce_agent",
     agent_card=f"{os.getenv('ECOMMERCE_AGENT_URL', 'http://localhost:11000').rstrip('/')}/.well-known/agent-card.json",
-    description="Remote product catalog agent from external vendor that provides product information.",
+    description="Remote ecommerce agent from external vendor that provides product information.",
 )
 # MCP Values
-BANK_MCP_URL = os.getenv('BANK_MCP_URL')
+BANK_MCP_URL = os.getenv('BANK_MCP_URL', 'http://bank-mcp:8888')
+logger.info(f"BANK_MCP_URL: {BANK_MCP_URL}")
+
+PIZZA_AGENT_URL = os.getenv('PIZZA_AGENT_URL', 'http://localhost:10000')
+logger.info(f"PIZZA_AGENT_URL: {PIZZA_AGENT_URL}")
+
+ECOMMERCE_AGENT_URL = os.getenv('ECOMMERCE_AGENT_URL', 'http://localhost:11000')
+logger.info(f"ECOMMERCE_AGENT_URL: {ECOMMERCE_AGENT_URL}")
 
 ## Helper Agents ##
 
@@ -113,7 +120,8 @@ finance_agent = Agent(
     tools=[
         MCPToolset(
             connection_params=StreamableHTTPConnectionParams(
-                url=f"{BANK_MCP_URL.rstrip('/')}/mcp"
+                url=f"{BANK_MCP_URL.rstrip('/')}/mcp",
+                timeout=60.0
             )
         )
     ],
@@ -158,16 +166,25 @@ root_agent = Agent(
     ),
     description='You are Jarbest a helpful assistant for user questions.',
     instruction="""
-    You are Jarbest, a helpful assistant.
+    You are Jarbest, a trusted personal companion designed to empower users, especially those with visual or physical impairments.
     
+    Your goal is to be the user's eyes and hands in the digital world, managing their finances and purchases with extreme care and clarity.
+
     Your job is to act as an intermediary between the user and the tools (pizza_agent, finance_agent, ecommerce_agent).
     
     RULES:
-    1. When the user asks a question, call the appropriate tool.
-    2. When the tool returns a response, you MUST repeat that response to the user.
-    3. DO NOT summarize if the tool asks a specific question. Repeat the question exactly.
-    4. NEVER return an empty response. Always say something.
-    5. Use the load_memory tool to recall past conversations if needed.
+    1. **Identity:** You are Jarbest. Always be helpful, patient, and clear.
+    2. **Accessibility First:** 
+       - Your responses may be read aloud by text-to-speech software. Avoid ASCII art or complex formatting.
+       - Be descriptive. Instead of "Here is the list", say "I found three pizza options: Pepperoni, Cheese, and Veggie."
+    3. **Safety & Scam Prevention:** 
+       - You are the guardian of the user's wallet.
+       - ALWAYS verify the cost and balance before confirming any purchase.
+       - If a transaction looks suspicious or unusually high, warn the user explicitly.
+    4. **Tool Usage:**
+       - When the user asks a question, call the appropriate tool.
+       - When the tool returns a response, synthesize it into a clear, spoken-style sentence.
+    5. **Memory:** Use the load_memory tool to recall past conversations and preferences (e.g., "ordering the usual").
     """,
     tools=[
         AgentTool(finance_agent), 
@@ -176,5 +193,11 @@ root_agent = Agent(
         ],
     after_agent_callback=auto_save_to_memory
 )
+print(f"THE VALUE OF PIZZA_URL_AGENT IS: {PIZZA_AGENT_URL}")
+print(f"THE VALUE OF ECOMMERCE_URL_AGENT IS: {ECOMMERCE_AGENT_URL}")
+print(f"THE VALUE OF BANK_MCP_URL IS: {BANK_MCP_URL}")
 
 logger.info("Root Agent initialized.")
+
+# Alias for ADK auto-discovery
+agent = root_agent
