@@ -1,8 +1,6 @@
 # Jarbest: The Accessible Personal Companion
 
-# Jarbest: The Accessible Personal Companion
-
-**Jarbest** is a voice-ready, accessible personal agent designed to empower users—especially those with visual or physical impairments—to manage their digital lives with independence and security.
+**Jarbest** is an accessible personal agent designed to empower users—especially those with visual or physical impairments—to manage their digital lives with independence and security.
 
 Built as part of the **Kaggle 5-Day AI Agents Intensive**, this project aligns with the **Agents for Good** track by solving a critical problem: the digital world is fragmented and often inaccessible.
 
@@ -65,48 +63,56 @@ The Personal AI Agent is enhanced with memory capabilities to provide a more per
 ## Project Track
 **Agents for Good**: This project empowers users with disabilities by providing a secure, voice-ready interface for financial and lifestyle management.
 
-## Deployment & Live Demo
+## Deployment
 
-The system is deployed on **Google Cloud Run**.
+This system is designed to be deployed on Google Cloud Run or run locally using Docker.
 
-### Live Endpoints
-- **Personal Agent UI (Visual Chat)**: [https://jarbest-personal-agent-ui-192629822894.us-central1.run.app](https://jarbest-personal-agent-ui-192629822894.us-central1.run.app)
-- **Personal Agent API**: [https://jarbest-personal-agent-xgqr3b34bq-uc.a.run.app](https://jarbest-personal-agent-xgqr3b34bq-uc.a.run.app)
-- **Bank MCP Server**: [https://jarbest-bank-mcp-xgqr3b34bq-uc.a.run.app](https://jarbest-bank-mcp-xgqr3b34bq-uc.a.run.app)
-- **Pizza Agent**: [https://jarbest-pizza-agent-xgqr3b34bq-uc.a.run.app](https://jarbest-pizza-agent-xgqr3b34bq-uc.a.run.app)
-- **Ecommerce Agent**: [https://jarbest-ecommerce-agent-xgqr3b34bq-uc.a.run.app](https://jarbest-ecommerce-agent-xgqr3b34bq-uc.a.run.app)
+### Prerequisites
 
-### How to Deploy
-1.  **Prerequisites**: Google Cloud Project, `gcloud` CLI, Docker.
-2.  **Run Script**:
+*   Google Cloud Project with billing enabled.
+*   `gcloud` CLI installed and authenticated.
+*   Docker and Docker Compose installed.
+*   **Google API Key** from [Google AI Studio](https://aistudio.google.com/).
+
+### Configuration
+
+**Note:** This repository does not include sensitive configuration files (like `.env`) or API keys. You must set these up manually.
+
+1.  **Environment Variables**: The system relies on `GOOGLE_API_KEY` for the Gemini models.
+2.  **Service URLs**: When deploying, services need to know each other's URLs (handled automatically by `deploy.sh` for Cloud Run).
+
+### 🚀 Cloud Run Deployment
+
+We provide a specialized script to automate the deployment of all 4 services to Google Cloud Run.
+
+1.  Set your API key:
+    ```bash
+    export GOOGLE_API_KEY='your-api-key-here'
+    ```
+2.  Run the deployment script:
     ```bash
     chmod +x deploy.sh
     ./deploy.sh
     ```
 
-### Local Deployment (Testing)
+For detailed deployment instructions, including troubleshooting and architecture details, please refer to [DEPLOYMENT.md](DEPLOYMENT.md).
+
+### 💻 Local Development
+
 To run the entire system locally using Docker Compose:
 
-1.  **Prerequisites**: Docker, Docker Compose.
-2.  **Run Command**:
+1.  Navigate to `personal_agent/` and create a `.env` file based on `.env_example`:
+    ```bash
+    cp personal_agent/.env_example personal_agent/.env
+    # Edit .env to add your GOOGLE_API_KEY
+    ```
+2.  Run the stack:
     ```bash
     docker-compose up --build
     ```
-3.  **Access UI**: Open [http://localhost:8080](http://localhost:8080) in your browser.
-    *   Bank MCP: `http://localhost:8081`
-    *   Pizza Agent: `http://localhost:8082`
-    *   Ecommerce Agent: `http://localhost:8083`
+3.  Access the services:
+    *   **Personal Agent UI**: [http://localhost:8080](http://localhost:8080)
+    *   Bank MCP: [http://localhost:8888](http://localhost:8888)
+    *   Pizza Agent: [http://localhost:10000](http://localhost:10000)
+    *   Ecommerce Agent: [http://localhost:11000](http://localhost:11000)
 
-### Deployment Configuration (Important)
-When deploying the A2A agents (`pizza_shop_agent` and `ecommerce_agent`) to Cloud Run, you **MUST** set the following environment variables to ensure they generate the correct Agent Card URL:
-
-*   `A2A_HOST`: The domain of your Cloud Run service (e.g., `jarbest-pizza-agent-xyz.a.run.app`).
-*   `A2A_PROTOCOL`: `https`
-
-**Example Command:**
-```bash
-gcloud run deploy jarbest-pizza-agent \
-  --source ./simulated_environment/pizza_shop_agent \
-  --region us-central1 \
-  --set-env-vars A2A_HOST=jarbest-pizza-agent-xyz.a.run.app,A2A_PROTOCOL=https,MODEL=gemini-2.5-flash
-```
