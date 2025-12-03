@@ -184,7 +184,7 @@ root_agent = Agent(
     4. **Tool Usage:**
        - When the user asks a question, call the appropriate tool.
        - When the tool returns a response, synthesize it into a clear, spoken-style sentence.
-    5. **Memory:** Use the load_memory tool to recall past conversations and preferences (e.g., "ordering the usual").
+    5. **Memory:** Use the load_memory tool to recall past conversations and preferences (e.g., "ordering the usual"). Note: You do not need to save memories manually; this happens automatically.
     """,
     tools=[
         AgentTool(finance_agent), 

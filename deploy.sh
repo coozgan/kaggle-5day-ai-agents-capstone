@@ -98,7 +98,7 @@ uv run adk deploy cloud_run \
   --with_ui \
   personal_agent \
   -- \
-  --set-env-vars="MODEL=gemini-2.5-flash,GOOGLE_API_KEY=$GOOGLE_API_KEY,BANK_USER_ID=acc_12345,BANK_MCP_URL=$BANK_URL,PIZZA_AGENT_URL=$PIZZA_URL,ECOMMERCE_AGENT_URL=$ECOMMERCE_URL" \
+  --set-env-vars="MODEL=gemini-3-pro-preview,GOOGLE_API_KEY=$GOOGLE_API_KEY,BANK_USER_ID=acc_12345,BANK_MCP_URL=$BANK_URL,PIZZA_AGENT_URL=$PIZZA_URL,ECOMMERCE_AGENT_URL=$ECOMMERCE_URL" \
   --allow-unauthenticated
 
 UI_URL=$(gcloud run services describe jarbest-personal-agent-ui --platform managed --region $REGION --format 'value(status.url)')
